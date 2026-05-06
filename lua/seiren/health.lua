@@ -29,6 +29,7 @@ function M.collect(options, deps)
   local filereadable = deps.filereadable or vim.fn.filereadable
   local system = deps.system or vim.system
   local mermaid = options.mermaid or {}
+  local image = options.image or {}
   local preview = options.preview or {}
   local node_command = mermaid.node_command or "node"
   local resolved_runner = runner_path(options, deps)
@@ -66,6 +67,15 @@ function M.collect(options, deps)
     add(checks, "warn", "preview.wrap", "soft wrapping can break diagram layout")
   else
     add(checks, "ok", "preview.wrap", "disabled")
+  end
+
+  if image.enabled == true then
+    local mmdc = image.mmdc_command or (deps.mmdc_path or paths.mmdc_path)()
+    if executable(mmdc) == 1 then
+      add(checks, "ok", "mermaid-cli", mmdc .. " is executable")
+    else
+      add(checks, "error", "mermaid-cli", mmdc .. " is not executable")
+    end
   end
 
   return checks

@@ -18,6 +18,7 @@
   "license": "UNLICENSED",
   "type": "commonjs",
   "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.14.0",
     "beautiful-mermaid": "^1.1.3"
   }
 }

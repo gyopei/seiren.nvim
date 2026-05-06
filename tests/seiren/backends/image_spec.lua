@@ -39,6 +39,9 @@ describe("seiren.backends.image", function()
       plugin_root = function()
         return "/plugin"
       end,
+      puppeteer_config_path = function()
+        return "/plugin/scripts/puppeteer-config.json"
+      end,
     })
 
     assert_equal(result.ok, true)
@@ -54,6 +57,8 @@ describe("seiren.backends.image", function()
       "/tmp/seiren-image.png",
       "-b",
       "transparent",
+      "-p",
+      "/plugin/scripts/puppeteer-config.json",
     })
     assert_equal(captured_opts.cwd, "/plugin")
     assert_deep_equal(deleted, { "/tmp/seiren-image.mmd" })
@@ -92,6 +97,9 @@ describe("seiren.backends.image", function()
       end,
       plugin_root = function()
         return "/plugin"
+      end,
+      puppeteer_config_path = function()
+        return "/plugin/scripts/puppeteer-config.json"
       end,
     })
 
@@ -141,4 +149,3 @@ describe("seiren.backends.image", function()
     })
   end)
 end)
-

@@ -26,6 +26,7 @@ describe("seiren.config", function()
         viewer = "snacks",
         format = "png",
         mmdc_command = nil,
+        puppeteer_config_path = nil,
       },
       debounce_ms = 200,
     })

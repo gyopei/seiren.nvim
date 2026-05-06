@@ -44,6 +44,56 @@ describe("seiren.health", function()
     assert_equal(checks[4].status, "warn")
   end)
 
+  it("checks mermaid-cli when image preview is enabled", function()
+    local health = require("seiren.health")
+
+    local checks = health.collect({
+      mermaid = {
+        node_command = "node",
+        runner_path = "/project/scripts/render-beautiful-mermaid.mjs",
+      },
+      image = {
+        enabled = true,
+      },
+      preview = {
+        wrap = false,
+      },
+    }, {
+      runner_path = function()
+        return "/project/scripts/render-beautiful-mermaid.mjs"
+      end,
+      mmdc_path = function()
+        return "/project/node_modules/.bin/mmdc"
+      end,
+      plugin_root = function()
+        return "/project"
+      end,
+      executable = function(command)
+        if command == "node" or command == "/project/node_modules/.bin/mmdc" then
+          return 1
+        end
+        return 0
+      end,
+      filereadable = function()
+        return 1
+      end,
+      system = function()
+        return {
+          wait = function()
+            return {
+              code = 0,
+              stdout = "ok",
+              stderr = "",
+            }
+          end,
+        }
+      end,
+    })
+
+    assert_equal(checks[5].status, "ok")
+    assert_equal(checks[5].name, "mermaid-cli")
+  end)
+
   it("uses plugin root for the default runner path", function()
     local health = require("seiren.health")
     local checked_path
@@ -100,6 +150,9 @@ describe("seiren.health", function()
     }, {
       runner_path = function()
         return "/missing/runner.mjs"
+      end,
+      mmdc_path = function()
+        return "/missing/node_modules/.bin/mmdc"
       end,
       plugin_root = function()
         return "/missing"

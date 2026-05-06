@@ -34,4 +34,8 @@ function M.mmdc_path(deps)
   return vim.fs.joinpath(M.plugin_root(deps), "node_modules", ".bin", "mmdc")
 end
 
+function M.puppeteer_config_path(deps)
+  return vim.fs.joinpath(M.plugin_root(deps), "scripts", "puppeteer-config.json")
+end
+
 return M

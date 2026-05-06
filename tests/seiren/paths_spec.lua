@@ -19,5 +19,11 @@ describe("seiren.paths", function()
       }),
       "/tmp/lazy/seiren.nvim/node_modules/.bin/mmdc"
     )
+    assert_equal(
+      paths.puppeteer_config_path({
+        source = "@/tmp/lazy/seiren.nvim/lua/seiren/paths.lua",
+      }),
+      "/tmp/lazy/seiren.nvim/scripts/puppeteer-config.json"
+    )
   end)
 end)
