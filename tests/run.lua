@@ -1,6 +1,7 @@
 local specs = {
   "seiren.config_spec",
   "seiren.init_spec",
+  "seiren.backends_spec",
 }
 
 local failures = {}
@@ -74,4 +75,3 @@ if #failures > 0 then
   print(table.concat(failures, "\n\n"))
   vim.cmd.cquit(1)
 end
-
