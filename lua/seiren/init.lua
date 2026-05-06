@@ -1,19 +1,38 @@
 local config = require("seiren.config")
+local parser = require("seiren.parser")
+local backends = require("seiren.backends")
+local context = require("seiren.context")
+local preview_window = require("seiren.preview")
 
 local M = {}
 
 local commands_registered = false
 
 function M.preview()
-  vim.notify("seiren.nvim preview is not implemented yet", vim.log.levels.INFO)
+  local options = config.get()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local block = parser.select(0, cursor[1], options)
+
+  if not block then
+    vim.notify("seiren.nvim: no Mermaid diagram found", vim.log.levels.WARN)
+    return
+  end
+
+  local rendered = backends.render(block, options)
+  local lines = context.format(block, rendered.lines, options)
+  preview_window.open(lines, options)
 end
 
 function M.close()
-  vim.notify("seiren.nvim close is not implemented yet", vim.log.levels.INFO)
+  preview_window.close()
 end
 
 function M.toggle()
-  vim.notify("seiren.nvim toggle is not implemented yet", vim.log.levels.INFO)
+  if preview_window.is_open() then
+    preview_window.close()
+  else
+    M.preview()
+  end
 end
 
 local function register_commands()
@@ -42,4 +61,3 @@ function M.setup(user_options)
 end
 
 return M
-

@@ -5,6 +5,7 @@ local specs = {
   "seiren.backends.beautiful_mermaid_spec",
   "seiren.parser_spec",
   "seiren.context_spec",
+  "seiren.preview_spec",
 }
 
 local failures = {}
