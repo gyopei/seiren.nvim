@@ -25,6 +25,7 @@ describe("seiren.config", function()
         renderer = "mermaid_cli",
         viewer = "snacks",
         format = "png",
+        background = "white",
         mmdc_command = nil,
         puppeteer_config_path = nil,
       },

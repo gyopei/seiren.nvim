@@ -56,7 +56,7 @@ describe("seiren.backends.image", function()
       "-o",
       "/tmp/seiren-image.png",
       "-b",
-      "transparent",
+      "white",
       "-p",
       "/plugin/scripts/puppeteer-config.json",
     })

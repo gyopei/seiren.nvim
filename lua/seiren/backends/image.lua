@@ -44,6 +44,7 @@ function M.render(block, options, deps)
 
   local image = options.image or {}
   local format = image.format or "png"
+  local background = image.background or "white"
   local mmdc = image.mmdc_command or (deps.mmdc_path or paths.mmdc_path)()
   local puppeteer_config = image.puppeteer_config_path
   if puppeteer_config == nil then
@@ -64,7 +65,7 @@ function M.render(block, options, deps)
     "-o",
     output_path,
     "-b",
-    "transparent",
+    background,
   }
 
   if puppeteer_config ~= false then
