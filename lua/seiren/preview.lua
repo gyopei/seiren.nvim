@@ -44,13 +44,26 @@ local function window_options()
   }
 end
 
+local function normalize_lines(lines)
+  local normalized = {}
+
+  for _, item in ipairs(lines or {}) do
+    item = tostring(item):gsub("\r\n", "\n")
+    for line in (item .. "\n"):gmatch("(.-)\n") do
+      table.insert(normalized, line)
+    end
+  end
+
+  return normalized
+end
+
 function M.open(lines, options)
   options = options or {}
   local preview = options.preview or {}
   local bufnr = ensure_buffer()
 
   vim.api.nvim_set_option_value("modifiable", true, { buf = bufnr })
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines or {})
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, normalize_lines(lines))
   vim.api.nvim_set_option_value("modifiable", false, { buf = bufnr })
 
   if valid_win() then

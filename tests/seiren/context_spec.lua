@@ -43,5 +43,25 @@ describe("seiren.context", function()
 
     assert_equal(lines[3], "1234…")
   end)
-end)
 
+  it("splits rendered items that contain newlines", function()
+    local context = require("seiren.context")
+
+    local lines = context.format({
+      start_line = 1,
+      before_lines = {},
+      after_lines = {},
+    }, {
+      "first\nsecond",
+      "third",
+    }, {})
+
+    assert_deep_equal(lines, {
+      "Mermaid: mermaid at line 1",
+      "",
+      "first",
+      "second",
+      "third",
+    })
+  end)
+end)

@@ -19,4 +19,22 @@ describe("seiren.preview", function()
     preview.close()
     assert_equal(preview.is_open(), false)
   end)
+
+  it("normalizes accidental newline-containing line items", function()
+    local preview = require("seiren.preview")
+
+    preview.open({ "one\ntwo", "three" }, {
+      preview = {
+        wrap = false,
+      },
+    })
+
+    assert_deep_equal(vim.api.nvim_buf_get_lines(preview.get_bufnr(), 0, -1, false), {
+      "one",
+      "two",
+      "three",
+    })
+
+    preview.close()
+  end)
 end)

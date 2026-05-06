@@ -25,6 +25,15 @@ local function append_context(lines, context_lines, width)
   end
 end
 
+local function append_lines(lines, source_lines)
+  for _, item in ipairs(source_lines or {}) do
+    item = tostring(item):gsub("\r\n", "\n")
+    for line in (item .. "\n"):gmatch("(.-)\n") do
+      table.insert(lines, line)
+    end
+  end
+end
+
 function M.format(block, rendered_lines, options)
   options = options or {}
   local preview = options.preview or {}
@@ -45,7 +54,7 @@ function M.format(block, rendered_lines, options)
 
   if #(rendered_lines or {}) > 0 then
     table.insert(lines, "")
-    vim.list_extend(lines, rendered_lines)
+    append_lines(lines, rendered_lines)
   end
 
   if #(block.after_lines or {}) > 0 then
