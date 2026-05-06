@@ -1,14 +1,15 @@
 local config = require("seiren.config")
+local paths = require("seiren.paths")
 
 local M = {}
 
-local function runner_path(options)
+local function runner_path(options, deps)
   local configured = options.mermaid and options.mermaid.runner_path
   if configured then
     return configured
   end
 
-  return vim.fs.joinpath(vim.fn.getcwd(), "scripts", "render-beautiful-mermaid.mjs")
+  return (deps.runner_path or paths.runner_path)()
 end
 
 local function add(checks, status, name, message)
@@ -30,7 +31,8 @@ function M.collect(options, deps)
   local mermaid = options.mermaid or {}
   local preview = options.preview or {}
   local node_command = mermaid.node_command or "node"
-  local resolved_runner = runner_path(options)
+  local resolved_runner = runner_path(options, deps)
+  local plugin_root = (deps.plugin_root or paths.plugin_root)()
 
   if executable(node_command) == 1 then
     add(checks, "ok", "Node.js", node_command .. " is executable")
@@ -48,7 +50,7 @@ function M.collect(options, deps)
     node_command,
     "-e",
     "import('beautiful-mermaid').then(() => console.log('ok')).catch((error) => { console.error(error.message); process.exit(1); })",
-  }, { text = true }):wait()
+  }, { text = true, cwd = plugin_root }):wait()
 
   if import_result.code == 0 then
     add(checks, "ok", "beautiful-mermaid package", "import succeeded")
@@ -86,4 +88,3 @@ function M.check()
 end
 
 return M
-

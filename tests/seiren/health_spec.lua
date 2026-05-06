@@ -11,6 +11,12 @@ describe("seiren.health", function()
         wrap = true,
       },
     }, {
+      runner_path = function()
+        return "/project/scripts/render-beautiful-mermaid.mjs"
+      end,
+      plugin_root = function()
+        return "/project"
+      end,
       executable = function(command)
         assert_equal(command, "node")
         return 1
@@ -38,6 +44,48 @@ describe("seiren.health", function()
     assert_equal(checks[4].status, "warn")
   end)
 
+  it("uses plugin root for the default runner path", function()
+    local health = require("seiren.health")
+    local checked_path
+
+    health.collect({
+      mermaid = {
+        node_command = "node",
+      },
+      preview = {
+        wrap = false,
+      },
+    }, {
+      runner_path = function()
+        return "/plugin/scripts/render-beautiful-mermaid.mjs"
+      end,
+      plugin_root = function()
+        return "/plugin"
+      end,
+      executable = function()
+        return 1
+      end,
+      filereadable = function(path)
+        checked_path = path
+        return 1
+      end,
+      system = function(_, opts)
+        assert_equal(opts.cwd, "/plugin")
+        return {
+          wait = function()
+            return {
+              code = 0,
+              stdout = "ok",
+              stderr = "",
+            }
+          end,
+        }
+      end,
+    })
+
+    assert_equal(checked_path, "/plugin/scripts/render-beautiful-mermaid.mjs")
+  end)
+
   it("reports missing Node and runner as errors", function()
     local health = require("seiren.health")
 
@@ -50,6 +98,12 @@ describe("seiren.health", function()
         wrap = false,
       },
     }, {
+      runner_path = function()
+        return "/missing/runner.mjs"
+      end,
+      plugin_root = function()
+        return "/missing"
+      end,
       executable = function()
         return 0
       end,
@@ -75,4 +129,3 @@ describe("seiren.health", function()
     assert_equal(checks[4].status, "ok")
   end)
 end)
-

@@ -45,6 +45,85 @@ describe("seiren.backends.beautiful_mermaid", function()
     assert_deep_equal(result.lines, { "A", "B" })
   end)
 
+  it("uses the plugin runner by default", function()
+    local backend = require("seiren.backends.beautiful_mermaid")
+    local captured_cmd
+
+    backend.render({
+      source = "flowchart TD\n  A --> B",
+    }, {
+      mermaid = {
+        node_command = "node",
+      },
+    }, {
+      system = function(cmd)
+        captured_cmd = cmd
+        return {
+          wait = function()
+            return {
+              code = 0,
+              stdout = "ok\n",
+              stderr = "",
+            }
+          end,
+        }
+      end,
+      tempname = function()
+        return "/tmp/seiren-test.mmd"
+      end,
+      writefile = function() end,
+      delete = function() end,
+      runner_path = function()
+        return "/plugin/scripts/render-beautiful-mermaid.mjs"
+      end,
+    })
+
+    assert_deep_equal(captured_cmd, {
+      "node",
+      "/plugin/scripts/render-beautiful-mermaid.mjs",
+      "/tmp/seiren-test.mmd",
+    })
+  end)
+
+  it("runs Node from the plugin root by default", function()
+    local backend = require("seiren.backends.beautiful_mermaid")
+    local captured_opts
+
+    backend.render({
+      source = "flowchart TD\n  A --> B",
+    }, {
+      mermaid = {
+        node_command = "node",
+      },
+    }, {
+      system = function(_, opts)
+        captured_opts = opts
+        return {
+          wait = function()
+            return {
+              code = 0,
+              stdout = "ok\n",
+              stderr = "",
+            }
+          end,
+        }
+      end,
+      tempname = function()
+        return "/tmp/seiren-test.mmd"
+      end,
+      writefile = function() end,
+      delete = function() end,
+      runner_path = function()
+        return "/plugin/scripts/render-beautiful-mermaid.mjs"
+      end,
+      plugin_root = function()
+        return "/plugin"
+      end,
+    })
+
+    assert_equal(captured_opts.cwd, "/plugin")
+  end)
+
   it("returns source fallback lines when rendering fails", function()
     local backend = require("seiren.backends.beautiful_mermaid")
 
@@ -86,4 +165,3 @@ describe("seiren.backends.beautiful_mermaid", function()
     })
   end)
 end)
-

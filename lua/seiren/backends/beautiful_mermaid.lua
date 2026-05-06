@@ -1,4 +1,5 @@
 local source_backend = require("seiren.backends.source")
+local paths = require("seiren.paths")
 
 local M = {}
 
@@ -23,7 +24,7 @@ local function split_lines(text)
 end
 
 local function default_runner_path()
-  return vim.fs.joinpath(vim.fn.getcwd(), "scripts", "render-beautiful-mermaid.mjs")
+  return paths.runner_path()
 end
 
 local function source_lines_with_error(block, message)
@@ -40,7 +41,7 @@ function M.render(block, options, deps)
 
   local mermaid = options.mermaid or {}
   local node_command = mermaid.node_command or "node"
-  local runner_path = mermaid.runner_path or default_runner_path()
+  local runner_path = mermaid.runner_path or (deps.runner_path or default_runner_path)()
   local temp_path = (deps.tempname or vim.fn.tempname)()
   local writefile = deps.writefile or vim.fn.writefile
   local delete = deps.delete or vim.fn.delete
@@ -52,7 +53,8 @@ function M.render(block, options, deps)
 
   writefile(split_lines(block and block.source or ""), temp_path)
 
-  local result = system({ node_command, runner_path, temp_path }, { text = true }):wait()
+  local plugin_root = (deps.plugin_root or paths.plugin_root)()
+  local result = system({ node_command, runner_path, temp_path }, { text = true, cwd = plugin_root }):wait()
   delete(temp_path)
 
   if result.code ~= 0 then
