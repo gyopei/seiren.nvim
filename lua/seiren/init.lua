@@ -23,6 +23,10 @@ function M.preview()
   preview_window.open(lines, options)
 end
 
+function M.preview_image()
+  vim.notify("seiren.nvim image preview is not implemented yet", vim.log.levels.INFO)
+end
+
 function M.close()
   preview_window.close()
 end
@@ -43,6 +47,10 @@ local function register_commands()
   vim.api.nvim_create_user_command("SeirenPreview", function()
     M.preview()
   end, { desc = "Preview Mermaid diagram context" })
+
+  vim.api.nvim_create_user_command("SeirenPreviewImage", function()
+    M.preview_image()
+  end, { desc = "Preview Mermaid diagram as image" })
 
   vim.api.nvim_create_user_command("SeirenClose", function()
     M.close()

@@ -16,6 +16,13 @@ local defaults = {
     prefer_unicode = true,
     japanese_label_mode = "auto",
   },
+  image = {
+    enabled = false,
+    renderer = "mermaid_cli",
+    viewer = "snacks",
+    format = "png",
+    mmdc_command = nil,
+  },
   debounce_ms = 200,
 }
 
@@ -35,4 +42,3 @@ function M.reset()
 end
 
 return M
-
