@@ -1,0 +1,78 @@
+describe("seiren.health", function()
+  it("collects dependency checks", function()
+    local health = require("seiren.health")
+
+    local checks = health.collect({
+      mermaid = {
+        node_command = "node",
+        runner_path = "/project/scripts/render-beautiful-mermaid.mjs",
+      },
+      preview = {
+        wrap = true,
+      },
+    }, {
+      executable = function(command)
+        assert_equal(command, "node")
+        return 1
+      end,
+      filereadable = function(path)
+        assert_equal(path, "/project/scripts/render-beautiful-mermaid.mjs")
+        return 1
+      end,
+      system = function()
+        return {
+          wait = function()
+            return {
+              code = 0,
+              stdout = "ok",
+              stderr = "",
+            }
+          end,
+        }
+      end,
+    })
+
+    assert_equal(checks[1].status, "ok")
+    assert_equal(checks[2].status, "ok")
+    assert_equal(checks[3].status, "ok")
+    assert_equal(checks[4].status, "warn")
+  end)
+
+  it("reports missing Node and runner as errors", function()
+    local health = require("seiren.health")
+
+    local checks = health.collect({
+      mermaid = {
+        node_command = "node",
+        runner_path = "/missing/runner.mjs",
+      },
+      preview = {
+        wrap = false,
+      },
+    }, {
+      executable = function()
+        return 0
+      end,
+      filereadable = function()
+        return 0
+      end,
+      system = function()
+        return {
+          wait = function()
+            return {
+              code = 1,
+              stdout = "",
+              stderr = "missing package",
+            }
+          end,
+        }
+      end,
+    })
+
+    assert_equal(checks[1].status, "error")
+    assert_equal(checks[2].status, "error")
+    assert_equal(checks[3].status, "error")
+    assert_equal(checks[4].status, "ok")
+  end)
+end)
+
