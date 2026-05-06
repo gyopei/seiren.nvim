@@ -1,8 +1,10 @@
 local source = require("seiren.backends.source")
+local beautiful_mermaid = require("seiren.backends.beautiful_mermaid")
 
 local M = {}
 
 local backend_modules = {
+  beautiful_mermaid = beautiful_mermaid,
   source = source,
 }
 
@@ -24,4 +26,3 @@ function M.render(block, options)
 end
 
 return M
-
