@@ -1,8 +1,10 @@
 local config = require("seiren.config")
 local parser = require("seiren.parser")
 local backends = require("seiren.backends")
+local image_backend = require("seiren.backends.image")
 local context = require("seiren.context")
 local preview_window = require("seiren.preview")
+local snacks_viewer = require("seiren.viewers.snacks")
 
 local M = {}
 
@@ -23,8 +25,35 @@ function M.preview()
   preview_window.open(lines, options)
 end
 
-function M.preview_image()
-  vim.notify("seiren.nvim image preview is not implemented yet", vim.log.levels.INFO)
+function M.preview_image(deps)
+  deps = deps or {}
+
+  local options = config.get()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local block = parser.select(0, cursor[1], options)
+
+  if not block then
+    vim.notify("seiren.nvim: no Mermaid diagram found", vim.log.levels.WARN)
+    return
+  end
+
+  local renderer = deps.image_backend or image_backend
+  local viewer = deps.viewer or snacks_viewer
+  local rendered = renderer.render(block, options)
+
+  if not rendered.ok then
+    preview_window.open(context.format(block, rendered.lines, options), options)
+    return
+  end
+
+  local shown = viewer.show(rendered.image_path, options)
+  if not shown.ok then
+    preview_window.open(context.format(block, {
+      "Image viewer error: " .. shown.error,
+      "",
+      "Generated image: " .. rendered.image_path,
+    }, options), options)
+  end
 end
 
 function M.close()

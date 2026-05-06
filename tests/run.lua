@@ -8,6 +8,7 @@ local specs = {
   "seiren.parser_spec",
   "seiren.context_spec",
   "seiren.preview_spec",
+  "seiren.viewers.snacks_spec",
   "seiren.health_spec",
 }
 
