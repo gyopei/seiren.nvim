@@ -1,0 +1,7 @@
+flowchart TD
+  Start([Start]) --> Detect{Mermaid block?}
+  Detect -- Yes --> Render[Render diagram]
+  Detect -- No --> Markdown[Render Markdown text]
+  Render --> Preview[Update preview]
+  Markdown --> Preview
+  Preview --> Done([Done])

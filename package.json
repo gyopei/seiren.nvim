@@ -1,0 +1,23 @@
+{
+  "name": "seiren.nvim",
+  "version": "1.0.0",
+  "description": "Mermaid-first Markdown preview for Neovim.",
+  "private": true,
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "eval:renderers": "sh scripts/eval-renderers.sh"
+  },
+  "keywords": [
+    "neovim",
+    "markdown",
+    "mermaid"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "devDependencies": {
+    "beautiful-mermaid": "^1.1.3"
+  }
+}

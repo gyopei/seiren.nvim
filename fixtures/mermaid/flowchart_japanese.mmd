@@ -1,0 +1,7 @@
+flowchart TD
+  A[Markdownを編集] --> B{Mermaidブロックあり?}
+  B -- あり --> C[図をUnicodeで描画]
+  B -- なし --> D[本文だけ表示]
+  C --> E[Ghostty + tmuxで確認]
+  D --> E
+  E --> F[レイアウト崩れを確認]

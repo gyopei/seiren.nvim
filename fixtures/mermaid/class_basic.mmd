@@ -1,0 +1,10 @@
+classDiagram
+  class PreviewController {
+    +open()
+    +update()
+    +close()
+  }
+  class MermaidBackend {
+    +render(source)
+  }
+  PreviewController --> MermaidBackend

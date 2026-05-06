@@ -1,0 +1,7 @@
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Rendering: buffer changed
+  Rendering --> Visible: render succeeded
+  Rendering --> Fallback: render failed
+  Visible --> Rendering: buffer changed
+  Fallback --> Rendering: buffer changed

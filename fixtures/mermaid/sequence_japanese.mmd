@@ -1,0 +1,8 @@
+sequenceDiagram
+  participant User as 利用者
+  participant Nvim as Neovim
+  participant Renderer as 描画バックエンド
+  利用者->>Neovim: Markdownを編集する
+  Neovim->>描画バックエンド: Mermaidソースを渡す
+  描画バックエンド-->>Neovim: Unicodeプレビューを返す
+  Neovim-->>利用者: floatで図を表示する

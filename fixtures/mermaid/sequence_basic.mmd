@@ -1,0 +1,8 @@
+sequenceDiagram
+  participant User
+  participant Nvim
+  participant Renderer
+  User->>Nvim: Save buffer
+  Nvim->>Renderer: Send Mermaid source
+  Renderer-->>Nvim: Return Unicode preview
+  Nvim-->>User: Update float window

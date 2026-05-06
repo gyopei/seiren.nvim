@@ -1,0 +1,16 @@
+┌──────────┐      ┌───────────────┐    
+│ DOCUMENT ││───○╟│ MERMAID_BLOCK │    
+└──────────┘contai└───────────────┘    
+                          │            
+           ──────────────── produces   
+           │              │            
+           │              │            
+┌────────────────────┐                 
+│ RENDER_RESULT      │                 
+├────────────────────┤                 
+│    string backend  │                 
+│    string output   │                 
+│    boolean success │                 
+└────────────────────┘                 
+                                       
+                                       

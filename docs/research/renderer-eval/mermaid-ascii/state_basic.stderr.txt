@@ -1,0 +1,1 @@
+level=fatal msg="failed to parse graph diagram: unsupported graph type 'stateDiagram-v2'. Supported types: graph TD, graph TB, graph LR, flowchart TD, flowchart TB, flowchart LR"

@@ -1,0 +1,4 @@
+flowchart LR
+  A[User edits a Markdown document with a long Mermaid diagram label] --> B[Renderer converts the diagram into terminal friendly Unicode text]
+  B --> C[Preview window should remain readable without overlapping labels or arrows]
+  C --> D[Fallback source view is shown when rendering fails]

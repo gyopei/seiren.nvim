@@ -1,0 +1,8 @@
+erDiagram
+  DOCUMENT ||--o{ MERMAID_BLOCK : contains
+  MERMAID_BLOCK ||--|| RENDER_RESULT : produces
+  RENDER_RESULT {
+    string backend
+    string output
+    boolean success
+  }
