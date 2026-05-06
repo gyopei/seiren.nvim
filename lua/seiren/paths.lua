@@ -30,5 +30,8 @@ function M.runner_path(deps)
   return vim.fs.joinpath(M.plugin_root(deps), "scripts", "render-beautiful-mermaid.mjs")
 end
 
-return M
+function M.mmdc_path(deps)
+  return vim.fs.joinpath(M.plugin_root(deps), "node_modules", ".bin", "mmdc")
+end
 
+return M

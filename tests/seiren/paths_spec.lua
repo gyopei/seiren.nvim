@@ -13,6 +13,11 @@ describe("seiren.paths", function()
       }),
       "/tmp/lazy/seiren.nvim/scripts/render-beautiful-mermaid.mjs"
     )
+    assert_equal(
+      paths.mmdc_path({
+        source = "@/tmp/lazy/seiren.nvim/lua/seiren/paths.lua",
+      }),
+      "/tmp/lazy/seiren.nvim/node_modules/.bin/mmdc"
+    )
   end)
 end)
-

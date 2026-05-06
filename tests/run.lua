@@ -4,6 +4,7 @@ local specs = {
   "seiren.paths_spec",
   "seiren.backends_spec",
   "seiren.backends.beautiful_mermaid_spec",
+  "seiren.backends.image_spec",
   "seiren.parser_spec",
   "seiren.context_spec",
   "seiren.preview_spec",
