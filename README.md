@@ -1,30 +1,60 @@
 # seiren.nvim
 
-Mermaid-first Markdown preview for Neovim. The MVP renders the Mermaid diagram
-nearest to the cursor in a focused floating window without opening a browser.
+Neovim 内で Mermaid を確認するための、Mermaid-first な Markdown preview
+plugin です。
+
+`seiren.nvim` は、カーソル位置にある Mermaid diagram、またはカーソルより前の
+直近の Mermaid diagram を floating window に表示します。ブラウザを開かず、
+Markdown を書いている Neovim の中で diagram の見た目を確認できます。
+
+## モチベーション
+
+Mermaid diagram は Markdown の中に自然に書けますが、日本語ラベルを含む図を
+ターミナル上で崩さず確認するのは意外と面倒です。一般的な Markdown preview
+plugin は Mermaid をブラウザ上のドキュメント preview として扱うことが多く、
+Neovim、tmux、terminal を中心にした編集ループでは少し大きすぎます。
+
+`seiren.nvim` が重視しているのは、Markdown 全体の preview ではなく、
+「いま編集している Mermaid 図が、日本語を含んでも読める形で表示されること」
+です。
+
+- Mermaid support を中心機能として扱います。
+- preview は Neovim の floating window に表示します。
+- Node.js と `beautiful-mermaid` を使い、terminal-friendly な Unicode 出力を
+  生成します。
+- renderer が失敗した場合や依存が足りない場合でも、Mermaid source を fallback
+  として表示します。
+- 日本語ラベルを含む diagram を、Ghostty + tmux のような terminal 環境で確認
+  することを初期ターゲットにしています。
 
 ## Requirements
 
 - Neovim 0.10+
 - Node.js
 - Tree-sitter markdown parser
+- Unicode box drawing characters を自然に表示できる terminal
 
 ## Installation
 
-Example with lazy.nvim:
+[lazy.nvim](https://github.com/folke/lazy.nvim) の設定例です。
 
 ```lua
 {
-  "amag/seiren.nvim",
+  "gyopei/seiren",
+  name = "seiren.nvim",
   build = "npm install",
   ft = "markdown",
   config = function()
     require("seiren").setup()
+
+    vim.keymap.set("n", "<leader>mp", "<cmd>SeirenPreview<cr>", {
+      desc = "Preview Mermaid diagram",
+    })
   end,
 }
 ```
 
-For local development:
+ローカル開発中の設定例です。
 
 ```lua
 {
@@ -33,17 +63,29 @@ For local development:
   ft = "markdown",
   config = function()
     require("seiren").setup()
+
+    vim.keymap.set("n", "<leader>mp", "<cmd>SeirenPreview<cr>", {
+      desc = "Preview Mermaid diagram",
+    })
   end,
 }
 ```
 
 ## Usage
 
-- `:SeirenPreview`: render the Mermaid fence under the cursor, or the previous
-  Mermaid fence when the cursor is outside a diagram.
-- `:SeirenClose`: close the preview float.
-- `:SeirenToggle`: open or close the preview float.
-- `:checkhealth seiren`: check Node.js, the renderer runner, and package import.
+- `:SeirenPreview`: カーソル位置の Mermaid fence を preview します。カーソルが
+  diagram 外にある場合は、カーソルより前の直近の Mermaid fence を使います。
+- `:SeirenClose`: preview floating window を閉じます。
+- `:SeirenToggle`: preview floating window を開閉します。
+- `:checkhealth seiren`: Node.js、renderer runner、package import を確認します。
+
+normal mode で `<leader>mp` から preview を開く例です。
+
+```lua
+vim.keymap.set("n", "<leader>mp", "<cmd>SeirenPreview<cr>", {
+  desc = "Preview Mermaid diagram",
+})
+```
 
 ## Configuration
 
@@ -70,19 +112,18 @@ require("seiren").setup({
 
 ## Development
 
-Run the Lua test suite:
+Lua test suite を実行します。
 
 ```sh
 nvim --headless -u tests/minimal_init.lua -c "lua dofile('tests/run.lua')" -c qa
 ```
 
-Re-run renderer evaluation snapshots:
+renderer evaluation snapshot を再生成します。
 
 ```sh
 npm run eval:renderers
 ```
 
-Renderer evaluation output under `docs/research/renderer-eval/` is research
-evidence for the initial backend choice. It can be replaced by automated tests
-or removed after the decision is captured elsewhere.
-
+`docs/research/renderer-eval/` 以下の出力は、初期 renderer 選定のための調査
+snapshot です。MVP 実装後は、必要に応じて自動テストに置き換えるか、判断根拠を
+別の場所に残したうえで削除できます。
