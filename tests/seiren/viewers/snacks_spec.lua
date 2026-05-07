@@ -23,6 +23,7 @@ describe("seiren.viewers.snacks", function()
     assert_equal(supports_path, "/tmp/seiren-image.png")
     assert_equal(hover_called, true)
     assert_equal(vim.bo[vim.api.nvim_get_current_buf()].filetype, "markdown")
+    assert_equal(vim.b[vim.api.nvim_get_current_buf()].snacks_image_attached, true)
     assert_deep_equal(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), {
       "![Mermaid diagram](/tmp/seiren-image.png)",
     })
@@ -41,4 +42,3 @@ describe("seiren.viewers.snacks", function()
     assert_truthy(result.error:find("snacks.nvim image", 1, true))
   end)
 end)
-
