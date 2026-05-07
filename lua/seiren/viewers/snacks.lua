@@ -33,8 +33,15 @@ function M.show(image_path, options)
 
   preview_window.open({ string.format("![Mermaid diagram](%s)", image_path) }, options)
   local bufnr = vim.api.nvim_get_current_buf()
-  vim.b[bufnr].snacks_image_attached = true
   vim.bo[bufnr].filetype = "markdown"
+
+  for _, key in ipairs({ "h", "l", "<Left>", "<Right>" }) do
+    vim.keymap.set("n", key, "<Nop>", {
+      buffer = bufnr,
+      silent = true,
+      nowait = true,
+    })
+  end
 
   local ok, err = pcall(image.hover)
   if not ok then

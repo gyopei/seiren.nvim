@@ -1,5 +1,5 @@
 describe("seiren.viewers.snacks", function()
-  it("opens a markdown image reference and calls Snacks.image.hover", function()
+  it("opens a markdown image reference, locks horizontal movement, and calls Snacks.image.hover", function()
     package.loaded["seiren.viewers.snacks"] = nil
 
     local hover_called = false
@@ -23,10 +23,13 @@ describe("seiren.viewers.snacks", function()
     assert_equal(supports_path, "/tmp/seiren-image.png")
     assert_equal(hover_called, true)
     assert_equal(vim.bo[vim.api.nvim_get_current_buf()].filetype, "markdown")
-    assert_equal(vim.b[vim.api.nvim_get_current_buf()].snacks_image_attached, true)
     assert_deep_equal(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), {
       "![Mermaid diagram](/tmp/seiren-image.png)",
     })
+    assert_equal(vim.fn.maparg("l", "n", false, true).buffer, 1)
+    assert_equal(vim.fn.maparg("h", "n", false, true).buffer, 1)
+    assert_equal(vim.fn.maparg("<Right>", "n", false, true).buffer, 1)
+    assert_equal(vim.fn.maparg("<Left>", "n", false, true).buffer, 1)
 
     _G.Snacks = nil
   end)
