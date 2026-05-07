@@ -2,6 +2,7 @@ local config = require("seiren.config")
 local parser = require("seiren.parser")
 local backends = require("seiren.backends")
 local image_backend = require("seiren.backends.image")
+local image_cache = require("seiren.image_cache")
 local context = require("seiren.context")
 local preview_window = require("seiren.preview")
 local snacks_viewer = require("seiren.viewers.snacks")
@@ -9,6 +10,7 @@ local snacks_viewer = require("seiren.viewers.snacks")
 local M = {}
 
 local commands_registered = false
+local autocmds_registered = false
 
 function M.preview()
   local options = config.get()
@@ -39,11 +41,22 @@ function M.preview_image(deps)
 
   local renderer = deps.image_backend or image_backend
   local viewer = deps.viewer or snacks_viewer
-  local rendered = renderer.render(block, options)
+  local cache_key = image_cache.key(block, options)
+  local cached = image_cache.get(cache_key)
+  local rendered = cached and {
+    ok = true,
+    image_path = cached.image_path,
+  } or renderer.render(block, options)
 
   if not rendered.ok then
     preview_window.open(context.format(block, rendered.lines, options), options)
     return
+  end
+
+  if not cached then
+    image_cache.put(cache_key, rendered.image_path, {
+      delete = deps.delete,
+    })
   end
 
   local shown = viewer.show(rendered.image_path, options)
@@ -92,9 +105,26 @@ local function register_commands()
   commands_registered = true
 end
 
+local function register_autocmds()
+  if autocmds_registered then
+    return
+  end
+
+  local group = vim.api.nvim_create_augroup("seiren_cleanup", { clear = true })
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+    group = group,
+    callback = function()
+      image_cache.cleanup()
+    end,
+  })
+
+  autocmds_registered = true
+end
+
 function M.setup(user_options)
   config.setup(user_options)
   register_commands()
+  register_autocmds()
 end
 
 return M
