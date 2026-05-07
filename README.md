@@ -104,6 +104,16 @@ vim.keymap.set("n", "<leader>mP", "<cmd>SeirenPreviewImage<cr>", {
 })
 ```
 
+## Current limitations
+
+- `seiren.nvim` is not a full Markdown document preview. The current default is
+  diagram context preview: heading, diagram type, line number, short surrounding
+  text, and the selected Mermaid diagram.
+- Japanese Legend fallback is not implemented yet. Japanese labels are rendered
+  by the configured Mermaid backend as-is.
+- When a renderer fails or required runtime dependencies are missing,
+  `seiren.nvim` falls back to showing the original Mermaid source.
+
 image preview は experimental です。表示には `snacks.nvim` の image 機能が必要です。
 Mermaid から PNG への変換には `@mermaid-js/mermaid-cli` を使います。
 
