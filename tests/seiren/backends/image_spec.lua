@@ -142,6 +142,7 @@ describe("seiren.backends.image", function()
     assert_equal(result.error, "parse failed")
     assert_deep_equal(result.lines, {
       "Image renderer error: parse failed",
+      "Check Mermaid syntax and mermaid-cli / Chromium setup. Use :SeirenPreview for text preview.",
       "",
       "```mermaid",
       "not mermaid",

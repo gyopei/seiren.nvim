@@ -12,6 +12,26 @@ local M = {}
 local commands_registered = false
 local autocmds_registered = false
 
+local function ms(start_time, end_time)
+  return (end_time - start_time) / 1000000
+end
+
+local function report_image_timing(options, deps, timing)
+  local image = options.image or {}
+  if image.debug_timing ~= true then
+    return
+  end
+
+  local notify = deps.notify or vim.notify
+  notify(string.format(
+    "seiren.nvim image timing: cache=%s render=%.2fms viewer=%.2fms total=%.2fms",
+    timing.cache,
+    timing.render_ms,
+    timing.viewer_ms,
+    timing.total_ms
+  ), vim.log.levels.INFO)
+end
+
 function M.preview()
   local options = config.get()
   local cursor = vim.api.nvim_win_get_cursor(0)
@@ -41,14 +61,33 @@ function M.preview_image(deps)
 
   local renderer = deps.image_backend or image_backend
   local viewer = deps.viewer or snacks_viewer
+  local hrtime = deps.hrtime or vim.uv.hrtime
+  local total_start = hrtime()
   local cache_key = image_cache.key(block, options)
   local cached = image_cache.get(cache_key)
-  local rendered = cached and {
-    ok = true,
-    image_path = cached.image_path,
-  } or renderer.render(block, options)
+  local render_ms = 0
+  local render_end = total_start
+  local rendered
+
+  if cached then
+    rendered = {
+      ok = true,
+      image_path = cached.image_path,
+    }
+  else
+    local render_start = hrtime()
+    rendered = renderer.render(block, options)
+    render_end = hrtime()
+    render_ms = ms(render_start, render_end)
+  end
 
   if not rendered.ok then
+    report_image_timing(options, deps, {
+      cache = cached and "hit" or "miss",
+      render_ms = render_ms,
+      viewer_ms = 0,
+      total_ms = ms(total_start, render_end),
+    })
     preview_window.open(context.format(block, rendered.lines, options), options)
     return
   end
@@ -59,10 +98,20 @@ function M.preview_image(deps)
     })
   end
 
+  local viewer_start = hrtime()
   local shown = viewer.show(rendered.image_path, options)
+  local viewer_end = hrtime()
+  report_image_timing(options, deps, {
+    cache = cached and "hit" or "miss",
+    render_ms = render_ms,
+    viewer_ms = ms(viewer_start, viewer_end),
+    total_ms = ms(total_start, viewer_end),
+  })
+
   if not shown.ok then
     preview_window.open(context.format(block, {
       "Image viewer error: " .. shown.error,
+      "Configure snacks.nvim image support and terminal image support, or use :SeirenPreview.",
       "",
       "Generated image: " .. rendered.image_path,
     }, options), options)

@@ -28,6 +28,7 @@ describe("seiren.config", function()
         background = "white",
         mmdc_command = nil,
         puppeteer_config_path = nil,
+        debug_timing = false,
       },
       debounce_ms = 200,
     })

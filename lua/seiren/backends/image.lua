@@ -25,7 +25,11 @@ end
 
 local function fallback_lines(block, message)
   local fallback = source_backend.render(block)
-  local lines = { "Image renderer error: " .. message, "" }
+  local lines = {
+    "Image renderer error: " .. message,
+    "Check Mermaid syntax and mermaid-cli / Chromium setup. Use :SeirenPreview for text preview.",
+    "",
+  }
 
   vim.list_extend(lines, fallback.lines)
   return lines
