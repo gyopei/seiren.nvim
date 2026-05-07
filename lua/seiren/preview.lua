@@ -23,6 +23,7 @@ local function ensure_buffer()
   vim.api.nvim_set_option_value("buftype", "nofile", { buf = state.bufnr })
   vim.api.nvim_set_option_value("swapfile", false, { buf = state.bufnr })
   vim.api.nvim_buf_set_name(state.bufnr, "seiren-preview")
+  vim.diagnostic.enable(false, { bufnr = state.bufnr })
 
   return state.bufnr
 end

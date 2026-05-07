@@ -37,4 +37,18 @@ describe("seiren.preview", function()
 
     preview.close()
   end)
+
+  it("disables diagnostics in the preview buffer", function()
+    local preview = require("seiren.preview")
+
+    preview.open({ "# Preview" }, {
+      preview = {
+        wrap = false,
+      },
+    })
+
+    assert_equal(vim.diagnostic.is_enabled({ bufnr = preview.get_bufnr() }), false)
+
+    preview.close()
+  end)
 end)
