@@ -25,9 +25,17 @@ describe("seiren.health", function()
         assert_equal(path, "/project/scripts/render-beautiful-mermaid.mjs")
         return 1
       end,
-      system = function()
+      system = function(cmd)
         return {
           wait = function()
+            if cmd[2] == "/project/scripts/render-beautiful-mermaid.mjs" then
+              return {
+                code = 0,
+                stdout = "diagram",
+                stderr = "",
+              }
+            end
+
             return {
               code = 0,
               stdout = "ok",
@@ -36,12 +44,21 @@ describe("seiren.health", function()
           end,
         }
       end,
+      tempname = function()
+        return "/tmp/seiren-health"
+      end,
+      writefile = function() end,
+      delete = function() end,
     })
 
     assert_equal(checks[1].status, "ok")
     assert_equal(checks[2].status, "ok")
     assert_equal(checks[3].status, "ok")
-    assert_equal(checks[4].status, "warn")
+    assert_equal(checks[4].status, "ok")
+    assert_equal(checks[4].name, "sample render flowchart")
+    assert_equal(checks[5].status, "ok")
+    assert_equal(checks[5].name, "sample render sequenceDiagram")
+    assert_equal(checks[6].status, "warn")
   end)
 
   it("checks mermaid-cli when image preview is enabled", function()
@@ -77,9 +94,17 @@ describe("seiren.health", function()
       filereadable = function()
         return 1
       end,
-      system = function()
+      system = function(cmd)
         return {
           wait = function()
+            if cmd[2] == "/project/scripts/render-beautiful-mermaid.mjs" then
+              return {
+                code = 0,
+                stdout = "diagram",
+                stderr = "",
+              }
+            end
+
             return {
               code = 0,
               stdout = "ok",
@@ -88,10 +113,15 @@ describe("seiren.health", function()
           end,
         }
       end,
+      tempname = function()
+        return "/tmp/seiren-health"
+      end,
+      writefile = function() end,
+      delete = function() end,
     })
 
-    assert_equal(checks[5].status, "ok")
-    assert_equal(checks[5].name, "mermaid-cli")
+    assert_equal(checks[7].status, "ok")
+    assert_equal(checks[7].name, "mermaid-cli")
   end)
 
   it("uses plugin root for the default runner path", function()
@@ -119,10 +149,18 @@ describe("seiren.health", function()
         checked_path = path
         return 1
       end,
-      system = function(_, opts)
+      system = function(cmd, opts)
         assert_equal(opts.cwd, "/plugin")
         return {
           wait = function()
+            if cmd[2] == "/plugin/scripts/render-beautiful-mermaid.mjs" then
+              return {
+                code = 0,
+                stdout = "diagram",
+                stderr = "",
+              }
+            end
+
             return {
               code = 0,
               stdout = "ok",
@@ -131,6 +169,11 @@ describe("seiren.health", function()
           end,
         }
       end,
+      tempname = function()
+        return "/tmp/seiren-health"
+      end,
+      writefile = function() end,
+      delete = function() end,
     })
 
     assert_equal(checked_path, "/plugin/scripts/render-beautiful-mermaid.mjs")
@@ -174,11 +217,74 @@ describe("seiren.health", function()
           end,
         }
       end,
+      tempname = function()
+        return "/tmp/seiren-health"
+      end,
+      writefile = function() end,
+      delete = function() end,
     })
 
     assert_equal(checks[1].status, "error")
     assert_equal(checks[2].status, "error")
     assert_equal(checks[3].status, "error")
-    assert_equal(checks[4].status, "ok")
+    assert_equal(checks[4].status, "error")
+    assert_equal(checks[5].status, "error")
+    assert_equal(checks[6].status, "ok")
+  end)
+
+  it("reports sample render as an error when output is empty", function()
+    local health = require("seiren.health")
+
+    local checks = health.collect({
+      mermaid = {
+        node_command = "node",
+        runner_path = "/project/scripts/render-beautiful-mermaid.mjs",
+      },
+      preview = {
+        wrap = false,
+      },
+    }, {
+      runner_path = function()
+        return "/project/scripts/render-beautiful-mermaid.mjs"
+      end,
+      plugin_root = function()
+        return "/project"
+      end,
+      executable = function()
+        return 1
+      end,
+      filereadable = function()
+        return 1
+      end,
+      system = function(cmd)
+        return {
+          wait = function()
+            if cmd[2] == "/project/scripts/render-beautiful-mermaid.mjs" then
+              return {
+                code = 0,
+                stdout = "",
+                stderr = "",
+              }
+            end
+
+            return {
+              code = 0,
+              stdout = "ok",
+              stderr = "",
+            }
+          end,
+        }
+      end,
+      tempname = function()
+        return "/tmp/seiren-health"
+      end,
+      writefile = function() end,
+      delete = function() end,
+    })
+
+    assert_equal(checks[4].status, "error")
+    assert_equal(checks[4].message, "sample render returned empty output")
+    assert_equal(checks[5].status, "error")
+    assert_equal(checks[5].message, "sample render returned empty output")
   end)
 end)

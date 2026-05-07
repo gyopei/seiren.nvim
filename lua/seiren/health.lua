@@ -20,6 +20,34 @@ local function add(checks, status, name, message)
   })
 end
 
+local function sample_render(checks, sample, node_command, resolved_runner, plugin_root, deps)
+  local tempname = deps.tempname or vim.fn.tempname
+  local writefile = deps.writefile or vim.fn.writefile
+  local delete = deps.delete or vim.fn.delete
+  local system = deps.system or vim.system
+  local temp_path = tempname()
+
+  if not temp_path:match("%.mmd$") then
+    temp_path = temp_path .. ".mmd"
+  end
+
+  writefile(vim.split(sample.source, "\n", { plain = true }), temp_path)
+
+  local result = system({ node_command, resolved_runner, temp_path }, { text = true, cwd = plugin_root }):wait()
+  delete(temp_path)
+
+  if result.code == 0 and vim.trim(result.stdout or "") ~= "" then
+    add(checks, "ok", sample.name, "rendered non-empty output")
+    return
+  end
+
+  local message = vim.trim(result.stderr or result.stdout or "sample render failed")
+  if message == "" then
+    message = "sample render returned empty output"
+  end
+  add(checks, "error", sample.name, message)
+end
+
 function M.collect(options, deps)
   options = options or config.get()
   deps = deps or {}
@@ -62,6 +90,16 @@ function M.collect(options, deps)
     end
     add(checks, "error", "beautiful-mermaid package", message)
   end
+
+  sample_render(checks, {
+    name = "sample render flowchart",
+    source = "flowchart TD\n  A --> B",
+  }, node_command, resolved_runner, plugin_root, deps)
+
+  sample_render(checks, {
+    name = "sample render sequenceDiagram",
+    source = "sequenceDiagram\n  A->>B: hello",
+  }, node_command, resolved_runner, plugin_root, deps)
 
   if preview.wrap == true then
     add(checks, "warn", "preview.wrap", "soft wrapping can break diagram layout")
