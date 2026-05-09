@@ -95,6 +95,51 @@ describe("seiren init", function()
     assert_equal(viewed_path, "/tmp/seiren-image.png")
   end)
 
+  it("passes source context to the image overlay viewer", function()
+    package.loaded["seiren"] = nil
+    package.loaded["seiren.config"] = nil
+    package.loaded["seiren.image_cache"] = nil
+
+    local bufnr = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_set_current_buf(bufnr)
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {
+      "# Example",
+      "",
+      "```mermaid",
+      "flowchart TD",
+      "  A --> B",
+      "```",
+    })
+    vim.api.nvim_win_set_cursor(0, { 4, 0 })
+    local source_win = vim.api.nvim_get_current_win()
+
+    local viewer_deps
+    local seiren = require("seiren")
+    seiren.setup()
+    seiren.preview_image({
+      image_backend = {
+        render = function()
+          return {
+            ok = true,
+            image_path = "/tmp/seiren-image.png",
+          }
+        end,
+      },
+      viewer = {
+        show = function(_, _, deps)
+          viewer_deps = deps
+          return {
+            ok = true,
+          }
+        end,
+      },
+    })
+
+    assert_equal(viewer_deps.source_win, source_win)
+    assert_deep_equal(viewer_deps.source_cursor, { 4, 0 })
+    assert_equal(viewer_deps.block.start_line, 3)
+  end)
+
   it("falls back to text preview when image rendering fails", function()
     package.loaded["seiren"] = nil
     package.loaded["seiren.config"] = nil

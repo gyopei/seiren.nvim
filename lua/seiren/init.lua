@@ -3,6 +3,7 @@ local parser = require("seiren.parser")
 local backends = require("seiren.backends")
 local image_backend = require("seiren.backends.image")
 local image_cache = require("seiren.image_cache")
+local image_overlay = require("seiren.image_overlay")
 local context = require("seiren.context")
 local preview_window = require("seiren.preview")
 local snacks_viewer = require("seiren.viewers.snacks")
@@ -51,6 +52,7 @@ function M.preview_image(deps)
   deps = deps or {}
 
   local options = config.get()
+  local source_win = vim.api.nvim_get_current_win()
   local cursor = vim.api.nvim_win_get_cursor(0)
   local block = parser.select(0, cursor[1], options)
 
@@ -99,7 +101,11 @@ function M.preview_image(deps)
   end
 
   local viewer_start = hrtime()
-  local shown = viewer.show(rendered.image_path, options)
+  local shown = viewer.show(rendered.image_path, options, {
+    block = block,
+    source_win = source_win,
+    source_cursor = cursor,
+  })
   local viewer_end = hrtime()
   report_image_timing(options, deps, {
     cache = cached and "hit" or "miss",
@@ -108,7 +114,11 @@ function M.preview_image(deps)
     total_ms = ms(total_start, viewer_end),
   })
 
-  if not shown.ok then
+  if shown.ok and shown.close then
+    image_overlay.attach_lifecycle(source_win, cursor, {
+      close = shown.close,
+    })
+  elseif not shown.ok then
     preview_window.open(context.format(block, {
       "Image viewer error: " .. shown.error,
       "Configure snacks.nvim image support and terminal image support, or use :SeirenPreview.",

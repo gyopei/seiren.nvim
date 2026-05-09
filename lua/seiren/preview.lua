@@ -38,6 +38,7 @@ local function window_options(preview)
 
   return {
     relative = float.relative or "editor",
+    win = float.win,
     style = "minimal",
     border = float.border or "rounded",
     width = width,
