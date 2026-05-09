@@ -24,6 +24,25 @@ local function set_image_buffer(bufnr)
   vim.api.nvim_set_option_value("filetype", "image", { buf = bufnr })
 end
 
+local function large_image_summary(image_path, layout)
+  local dimensions = layout and layout.dimensions
+  local natural = layout and layout.natural or {}
+  local preview = layout and layout.preview or {}
+  local scale = layout and layout.scale
+
+  return {
+    "Mermaid image is too large for useful preview",
+    "",
+    "Generated image: " .. image_path,
+    dimensions and string.format("Image pixels: %d x %d", dimensions.width, dimensions.height) or "Image pixels: unknown",
+    string.format("Natural cells: %s x %s", natural.width or "unknown", natural.height or "unknown"),
+    string.format("Preview cells: %s x %s", preview.width or "unknown", preview.height or "unknown"),
+    string.format("Scale: %.3f", scale or 0),
+    "",
+    "Use :SeirenPreview for text/source preview, or open the generated PNG externally.",
+  }
+end
+
 function M.show(image_path, options, deps)
   deps = deps or {}
   local image = snacks_image()
@@ -43,6 +62,16 @@ function M.show(image_path, options, deps)
 
   local resolver = deps.image_window or image_window
   local layout = resolver.resolve and resolver.resolve(image_path, options or {}) or resolver.layout(image_path, options or {})
+  if layout and layout.large and layout.large_action == "summary" then
+    preview_window.open(large_image_summary(image_path, layout), options)
+    return {
+      ok = true,
+      close = function()
+        preview_window.close()
+      end,
+    }
+  end
+
   local overlay = deps.image_overlay or image_overlay
   local window_options = overlay.placement(
     deps.block,

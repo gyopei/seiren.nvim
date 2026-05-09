@@ -103,6 +103,12 @@ function M.layout(dimensions, options, editor)
 
   local image_width = math.ceil(dimensions.width / pixels_per_cell_width)
   local image_height = math.ceil(dimensions.height / pixels_per_cell_height)
+  local width_scale = size.width / image_width
+  local height_scale = size.height / image_height
+  local scale = math.min(width_scale, height_scale)
+  local min_readable_scale = window.min_readable_scale or 0.25
+  local large_action = window.large_image or "summary"
+  local large = large_action ~= "fit" and scale < min_readable_scale
 
   return {
     preview = size,
@@ -110,6 +116,13 @@ function M.layout(dimensions, options, editor)
       column = math.max(0, math.floor((size.width - image_width) / 2)),
       row = math.max(0, math.floor((size.height - image_height) / 2)),
     },
+    natural = {
+      width = image_width,
+      height = image_height,
+    },
+    scale = scale,
+    large = large,
+    large_action = large_action,
   }
 end
 

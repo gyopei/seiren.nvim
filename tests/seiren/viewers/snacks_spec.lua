@@ -113,4 +113,61 @@ describe("seiren.viewers.snacks", function()
     assert_equal(result.ok, false)
     assert_truthy(result.error:find("snacks.nvim image", 1, true))
   end)
+
+  it("shows a summary fallback for unreadably large images", function()
+    package.loaded["seiren.viewers.snacks"] = nil
+
+    local placement_called = false
+    _G.Snacks = {
+      image = {
+        supports = function()
+          return true
+        end,
+        placement = {
+          new = function()
+            placement_called = true
+          end,
+        },
+      },
+    }
+
+    local viewer = require("seiren.viewers.snacks")
+    local result = viewer.show("/tmp/seiren-large.png", nil, {
+      image_window = {
+        layout = function()
+          return {
+            preview = {
+              width = 20,
+              height = 19,
+            },
+            natural = {
+              width = 20,
+              height = 831,
+            },
+            scale = 0.023,
+            large = true,
+            large_action = "summary",
+          }
+        end,
+      },
+    })
+
+    assert_equal(result.ok, true)
+    assert_equal(placement_called, false)
+
+    local preview = require("seiren.preview")
+    assert_deep_equal(vim.api.nvim_buf_get_lines(preview.get_bufnr(), 0, -1, false), {
+      "Mermaid image is too large for useful preview",
+      "",
+      "Generated image: /tmp/seiren-large.png",
+      "Image pixels: unknown",
+      "Natural cells: 20 x 831",
+      "Preview cells: 20 x 19",
+      "Scale: 0.023",
+      "",
+      "Use :SeirenPreview for text/source preview, or open the generated PNG externally.",
+    })
+
+    _G.Snacks = nil
+  end)
 end)

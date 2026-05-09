@@ -181,6 +181,8 @@ require("seiren").setup({
       padding = 0,
       pixels_per_cell_width = 10,
       pixels_per_cell_height = 20,
+      large_image = "summary",
+      min_readable_scale = 0.25,
     },
   },
   debounce_ms = 200,

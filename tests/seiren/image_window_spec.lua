@@ -115,6 +115,13 @@ describe("seiren.image_window", function()
         column = 0,
         row = 1,
       },
+      natural = {
+        width = 32,
+        height = 6,
+      },
+      scale = 1.0,
+      large = false,
+      large_action = "summary",
     })
   end)
 
@@ -148,6 +155,55 @@ describe("seiren.image_window", function()
         column = 6,
         row = 3,
       },
+      natural = {
+        width = 8,
+        height = 2,
+      },
+      scale = 2.5,
+      large = false,
+      large_action = "summary",
+    })
+  end)
+
+  it("marks images as large when fitted scale is too small to read", function()
+    local image_window = require("seiren.image_window")
+
+    assert_deep_equal(image_window.layout({
+      width = 199,
+      height = 16606,
+    }, {
+      image = {
+        window = {
+          pixels_per_cell_width = 10,
+          pixels_per_cell_height = 20,
+          padding = 0,
+          min_width = 20,
+          min_height = 8,
+          max_width_ratio = 0.8,
+          max_height_ratio = 0.8,
+          large_image = "summary",
+          min_readable_scale = 0.25,
+        },
+      },
+    }, {
+      columns = 80,
+      lines = 24,
+    }), {
+      preview = {
+        width = 20,
+        height = 19,
+      },
+      image = {
+        column = 0,
+        row = 0,
+      },
+      natural = {
+        width = 20,
+        height = 831,
+      },
+      scale = 0.02286401925391095,
+      large = true,
+      large_action = "summary",
     })
   end)
 end)
