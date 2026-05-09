@@ -51,4 +51,53 @@ describe("seiren.preview", function()
 
     preview.close()
   end)
+
+  it("uses explicit preview dimensions when provided", function()
+    local preview = require("seiren.preview")
+
+    preview.open({ "sized" }, {
+      preview = {
+        wrap = false,
+        width = 32,
+        height = 9,
+      },
+    })
+
+    local config = vim.api.nvim_win_get_config(preview.get_winid())
+    assert_equal(config.width, 32)
+    assert_equal(config.height, 9)
+
+    preview.close()
+  end)
+
+  it("can open an unfocused float with explicit placement", function()
+    local preview = require("seiren.preview")
+    local source_win = vim.api.nvim_get_current_win()
+
+    preview.open({ "hover" }, {
+      preview = {
+        wrap = false,
+        focus = false,
+        width = 18,
+        height = 4,
+        float = {
+          relative = "win",
+          row = -5,
+          col = 0,
+          anchor = "NW",
+        },
+      },
+    })
+
+    assert_equal(vim.api.nvim_get_current_win(), source_win)
+    local config = vim.api.nvim_win_get_config(preview.get_winid())
+    assert_equal(config.relative, "win")
+    assert_equal(config.row, -5)
+    assert_equal(config.col, 0)
+    assert_equal(config.anchor, "NW")
+    assert_equal(config.width, 18)
+    assert_equal(config.height, 4)
+
+    preview.close()
+  end)
 end)

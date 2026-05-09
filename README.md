@@ -172,6 +172,16 @@ require("seiren").setup({
     mmdc_command = nil,
     puppeteer_config_path = nil,
     debug_timing = false,
+    window = {
+      fit = true,
+      max_width_ratio = 0.8,
+      max_height_ratio = 0.8,
+      min_width = 20,
+      min_height = 8,
+      padding = 0,
+      pixels_per_cell_width = 10,
+      pixels_per_cell_height = 20,
+    },
   },
   debounce_ms = 200,
 })

@@ -28,20 +28,23 @@ local function ensure_buffer()
   return state.bufnr
 end
 
-local function window_options()
+local function window_options(preview)
+  preview = preview or {}
+  local float = preview.float or {}
   local columns = vim.o.columns
   local lines = vim.o.lines
-  local width = math.max(20, math.floor(columns * 0.8))
-  local height = math.max(8, math.floor(lines * 0.8))
+  local width = preview.width or math.max(20, math.floor(columns * 0.8))
+  local height = preview.height or math.max(8, math.floor(lines * 0.8))
 
   return {
-    relative = "editor",
+    relative = float.relative or "editor",
     style = "minimal",
-    border = "rounded",
+    border = float.border or "rounded",
     width = width,
     height = height,
-    row = math.floor((lines - height) / 2),
-    col = math.floor((columns - width) / 2),
+    row = float.row or math.floor((lines - height) / 2),
+    col = float.col or math.floor((columns - width) / 2),
+    anchor = float.anchor,
   }
 end
 
@@ -62,15 +65,19 @@ function M.open(lines, options)
   options = options or {}
   local preview = options.preview or {}
   local bufnr = ensure_buffer()
+  local win_options = window_options(preview)
 
   vim.api.nvim_set_option_value("modifiable", true, { buf = bufnr })
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, normalize_lines(lines))
   vim.api.nvim_set_option_value("modifiable", false, { buf = bufnr })
 
   if valid_win() then
-    vim.api.nvim_set_current_win(state.winid)
+    vim.api.nvim_win_set_config(state.winid, win_options)
+    if preview.focus ~= false then
+      vim.api.nvim_set_current_win(state.winid)
+    end
   else
-    state.winid = vim.api.nvim_open_win(bufnr, true, window_options())
+    state.winid = vim.api.nvim_open_win(bufnr, preview.focus ~= false, win_options)
     vim.keymap.set("n", "q", function()
       M.close()
     end, { buffer = bufnr, silent = true, nowait = true })
